@@ -25,7 +25,7 @@ export const CLICK = {
 export const CHAR_UPGRADES = {
   clickPower: {
     name: 'Tap Power',
-    icon: '👊',
+    icon: 'bolt',
     baseCost: 15,
     costGrowth: 1.16,
     effectPerLevel: 0.35,
@@ -34,7 +34,7 @@ export const CHAR_UPGRADES = {
   },
   moveSpeed: {
     name: 'Swift Ooze',
-    icon: '💨',
+    icon: 'chevronsRight',
     baseCost: 40,
     costGrowth: 1.22,
     effectPerLevel: 0.09,
@@ -43,7 +43,7 @@ export const CHAR_UPGRADES = {
   },
   capacity: {
     name: 'Storage Sac',
-    icon: '🧪',
+    icon: 'flask',
     baseCost: 80,
     costGrowth: 1.25,
     effectPerLevel: 0.5,
@@ -52,7 +52,7 @@ export const CHAR_UPGRADES = {
   },
   multiplier: {
     name: 'Goo Density',
-    icon: '✨',
+    icon: 'sparkle',
     baseCost: 500,
     costGrowth: 1.35,
     effectPerLevel: 0.12,
@@ -69,7 +69,7 @@ export const MACHINES = [
   {
     id: 'extractor',
     name: 'Goo Extractor',
-    icon: '⛽',
+    icon: 'fuelPump',
     desc: 'Pulls raw Goo from the puddle floor',
     baseCost: 50,
     costGrowth: 1.15,
@@ -81,7 +81,7 @@ export const MACHINES = [
   {
     id: 'splitter',
     name: 'Splitter Node',
-    icon: '🔀',
+    icon: 'shuffleX',
     desc: 'Splits Goo blobs into more Goo blobs',
     baseCost: 400,
     costGrowth: 1.17,
@@ -93,7 +93,7 @@ export const MACHINES = [
   {
     id: 'worker',
     name: 'Worker Blob',
-    icon: '🙋',
+    icon: 'user',
     desc: 'Auto-taps the Goo Blob for you',
     baseCost: 1500,
     costGrowth: 1.19,
@@ -105,7 +105,7 @@ export const MACHINES = [
   {
     id: 'geyser',
     name: 'Goo Geyser',
-    icon: '🌋',
+    icon: 'volcano',
     desc: 'Erupts with huge bursts of Goo',
     baseCost: 12000,
     costGrowth: 1.21,
@@ -117,7 +117,7 @@ export const MACHINES = [
   {
     id: 'refinery',
     name: 'Crystal Refinery',
-    icon: '🏭',
+    icon: 'factory',
     desc: 'Industrial-scale Goo refinement',
     baseCost: 120000,
     costGrowth: 1.23,
@@ -129,7 +129,7 @@ export const MACHINES = [
   {
     id: 'reactor',
     name: 'Void Reactor',
-    icon: '⚛️',
+    icon: 'atom',
     desc: 'Harnesses void energy for absurd output',
     baseCost: 2500000,
     costGrowth: 1.26,
@@ -144,7 +144,7 @@ export const MACHINES = [
 export const TYCOON_UPGRADES = {
   prodSpeed: {
     name: 'Conveyor Speed',
-    icon: '⚙️',
+    icon: 'gauge',
     baseCost: 300,
     costGrowth: 1.3,
     effectPerLevel: 0.08,
@@ -153,7 +153,7 @@ export const TYCOON_UPGRADES = {
   },
   machineValue: {
     name: 'Machine Tuning',
-    icon: '🔧',
+    icon: 'wrench',
     baseCost: 600,
     costGrowth: 1.32,
     effectPerLevel: 0.1,
@@ -162,7 +162,7 @@ export const TYCOON_UPGRADES = {
   },
   workerEff: {
     name: 'Worker Efficiency',
-    icon: '⏱️',
+    icon: 'clock',
     baseCost: 2000,
     costGrowth: 1.3,
     effectPerLevel: 0.15,
@@ -189,7 +189,7 @@ export const PRESTIGE = {
   upgrades: {
     startBoost: {
       name: 'Head Start',
-      icon: '🚀',
+      icon: 'rocket',
       baseCost: 3,
       costGrowth: 1.6,
       effectPerLevel: 250, // free goo granted immediately after each rebirth
@@ -198,7 +198,7 @@ export const PRESTIGE = {
     },
     permaMult: {
       name: 'Ooze Ascendance',
-      icon: '👑',
+      icon: 'crown',
       baseCost: 5,
       costGrowth: 1.8,
       effectPerLevel: 0.05,
@@ -207,7 +207,7 @@ export const PRESTIGE = {
     },
     clickBoost: {
       name: 'Crystal Fingers',
-      icon: '💎',
+      icon: 'crystal',
       baseCost: 4,
       costGrowth: 1.7,
       effectPerLevel: 0.08,

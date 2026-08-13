@@ -1,6 +1,7 @@
 import { CHAR_UPGRADES, TYCOON_UPGRADES, MACHINES, ZONES, PRESTIGE } from '../config/balance.js';
 import { formatNumber, formatRate } from '../utils/format.js';
 import { FloatingTextManager } from '../systems/Particles.js';
+import { svgIcon } from './icons.js';
 
 const TUTORIAL_STEPS = [
   { cond: () => true, text: 'Tap the glowing Goo Blob (or hit the TAP button) to earn Goo!' },
@@ -53,12 +54,14 @@ export class UIManager {
       prestigeInfo: $('prestige-info'),
       prestigeUpgrades: $('prestige-upgrades'),
       rebirthBtn: $('rebirth-btn'),
+      rebirthBtnLabel: $('rebirth-btn-label'),
       toastStack: $('toast-stack'),
       floatingLayer: $('floating-text-layer'),
       tutorialBox: $('tutorial-box'),
       tutorialText: $('tutorial-text'),
       rebirthCinematic: $('rebirth-cinematic'),
       rebirthText: $('rebirth-text'),
+      rebirthTextLine: $('rebirth-text-line'),
       settingsModal: $('settings-modal'),
       musicVol: $('music-vol'),
       sfxVol: $('sfx-vol'),
@@ -143,14 +146,20 @@ export class UIManager {
   }
 
   // ---------- generic upgrade card builder ----------
-  _upgradeCard({ icon, name, desc, levelLabel, cost, canBuy, maxed, onBuy }) {
+  _upgradeCard({ icon, iconColor, name, desc, levelLabel, cost, canBuy, maxed, onBuy }) {
     const card = document.createElement('div');
     card.className = 'upgrade-card';
+    const badgeStyle = iconColor ? ` style="--badge-color:${iconColor}"` : '';
     card.innerHTML = `
-      <div class="upgrade-card-head"><span class="upgrade-icon">${icon}</span><span class="upgrade-name">${name}</span></div>
+      <div class="upgrade-card-head">
+        <span class="upgrade-icon"${badgeStyle}>${svgIcon(icon, { size: 18 })}</span>
+        <span class="upgrade-name">${name}</span>
+      </div>
       <div class="upgrade-desc">${desc}</div>
       <div class="upgrade-level">${levelLabel}</div>
-      <button class="buy-btn ${canBuy ? 'affordable' : ''}" ${maxed || !canBuy ? 'disabled' : ''}>${maxed ? 'MAX' : formatNumber(cost) + ' Goo'}</button>
+      <button class="buy-btn ${canBuy ? 'affordable' : ''}" ${maxed || !canBuy ? 'disabled' : ''}>
+        ${maxed ? 'MAX' : `${svgIcon('goo', { size: 13, className: 'buy-btn-icon' })}${formatNumber(cost)}`}
+      </button>
     `;
     const btn = card.querySelector('.buy-btn');
     if (maxed) btn.classList.add('maxed');
@@ -202,17 +211,20 @@ export class UIManager {
       const card = document.createElement('div');
       card.className = 'upgrade-card';
       if (!unlocked) {
+        card.classList.add('locked');
         card.innerHTML = `
-          <div class="upgrade-card-head"><span class="upgrade-icon">🔒</span><span class="upgrade-name">${def.name}</span></div>
+          <div class="upgrade-card-head"><span class="upgrade-icon upgrade-icon--locked">${svgIcon('lock', { size: 16 })}</span><span class="upgrade-name">${def.name}</span></div>
           <div class="upgrade-desc">Unlocks at ${formatNumber(def.unlockAt)} lifetime Goo</div>
           <div class="upgrade-level">Locked</div>
-          <button class="buy-btn" disabled>LOCKED</button>`;
+          <button class="buy-btn" disabled>Locked</button>`;
         this.el.machineList.appendChild(card);
         continue;
       }
+      const colorHex = '#' + def.color.toString(16).padStart(6, '0');
       card.appendChild(
         this._upgradeCard({
           icon: def.icon,
+          iconColor: colorHex,
           name: def.name,
           desc: def.desc + ` · ${formatRate(g.economy.machineOutput(def))}`,
           levelLabel: `Owned: ${count}${maxed ? ' (MAX)' : ''}`,
@@ -265,14 +277,15 @@ export class UIManager {
       card.className = 'upgrade-card zone-card' + (unlocked ? '' : ' locked');
       const swatch = `<div class="zone-swatch" style="background:#${zone.color.toString(16).padStart(6, '0')}"></div>`;
       if (unlocked) {
-        card.innerHTML = `${swatch}<div class="upgrade-card-head"><span class="upgrade-name">${zone.name}</span></div><div class="upgrade-desc">Unlocked ✔</div>
+        card.innerHTML = `${swatch}<div class="upgrade-card-head"><span class="upgrade-name">${zone.name}</span></div>
+          <div class="upgrade-desc upgrade-desc--unlocked">${svgIcon('check', { size: 13 })}Unlocked</div>
           <button class="buy-btn" id="travel-${zone.id}">Travel Here</button>`;
         this.el.zoneList.appendChild(card);
         card.querySelector('button').addEventListener('click', () => this.game.travelTo(zone.id));
       } else {
         const canBuy = g.zones.canAfford(zone);
         card.innerHTML = `${swatch}<div class="upgrade-card-head"><span class="upgrade-name">${zone.name}</span></div><div class="upgrade-desc">Requires ${formatNumber(zone.cost)} Goo</div>
-          <button class="buy-btn ${canBuy ? 'affordable' : ''}" ${canBuy ? '' : 'disabled'}>Unlock — ${formatNumber(zone.cost)}</button>`;
+          <button class="buy-btn ${canBuy ? 'affordable' : ''}" ${canBuy ? '' : 'disabled'}>${svgIcon('goo', { size: 13, className: 'buy-btn-icon' })}Unlock — ${formatNumber(zone.cost)}</button>`;
         this.el.zoneList.appendChild(card);
         card.querySelector('button').addEventListener('click', () => {
           if (g.zones.unlock(zone.id)) this.refreshZones();
@@ -285,14 +298,15 @@ export class UIManager {
     const g = this.game;
     const canRebirth = g.prestige.canRebirth();
     const gain = g.prestige.crystalGain();
+    const crystalIcon = svgIcon('crystal', { size: 13, className: 'inline-icon' });
     this.el.prestigeInfo.innerHTML = `
       Rebirths: <b>${g.save.data.rebirths}</b><br/>
       Lifetime Goo this run: <b>${formatNumber(g.save.data.lifetimeGoo)}</b> / ${formatNumber(PRESTIGE.unlockAt)}<br/>
-      Rebirthing now grants <b style="color:#7dd3fc">+${gain} 💎 Crystals</b><br/>
-      Current bonus: <b style="color:var(--goo)">+${Math.round((g.economy.rebirthMultiplier() - 1) * 100)}%</b> Goo income
+      Rebirthing now grants <b class="text-crystal">+${gain}${crystalIcon}Crystals</b><br/>
+      Current bonus: <b class="text-goo">+${Math.round((g.economy.rebirthMultiplier() - 1) * 100)}%</b> Goo income
     `;
     this.el.rebirthBtn.disabled = !canRebirth || gain <= 0;
-    this.el.rebirthBtn.textContent = canRebirth ? `✨ Rebirth for +${gain} Crystals ✨` : `Reach ${formatNumber(PRESTIGE.unlockAt)} Lifetime Goo to Rebirth`;
+    this.el.rebirthBtnLabel.textContent = canRebirth ? `Rebirth for +${gain} Crystals` : `Reach ${formatNumber(PRESTIGE.unlockAt)} Lifetime Goo`;
 
     this.el.prestigeUpgrades.innerHTML = '';
     for (const key in PRESTIGE.upgrades) {
@@ -304,10 +318,10 @@ export class UIManager {
       const card = document.createElement('div');
       card.className = 'upgrade-card';
       card.innerHTML = `
-        <div class="upgrade-card-head"><span class="upgrade-icon">${def.icon}</span><span class="upgrade-name">${def.name}</span></div>
+        <div class="upgrade-card-head"><span class="upgrade-icon" style="--badge-color:#7dd3fc">${svgIcon(def.icon, { size: 18 })}</span><span class="upgrade-name">${def.name}</span></div>
         <div class="upgrade-desc">${def.desc}</div>
         <div class="upgrade-level">Level ${lvl}${maxed ? ' (MAX)' : ''}</div>
-        <button class="buy-btn ${canBuy ? 'affordable' : ''}" ${maxed || !canBuy ? 'disabled' : ''}>${maxed ? 'MAX' : cost + ' 💎'}</button>
+        <button class="buy-btn ${canBuy ? 'affordable' : ''}" ${maxed || !canBuy ? 'disabled' : ''}>${maxed ? 'MAX' : `${svgIcon('crystal', { size: 13, className: 'buy-btn-icon' })}${cost}`}</button>
       `;
       if (!maxed) {
         card.querySelector('button').addEventListener('click', () => {
@@ -328,7 +342,7 @@ export class UIManager {
       item.innerHTML = `
         <div class="quest-item-text">${q.text}</div>
         <div class="quest-progress-bar"><div class="quest-progress-fill" style="width:${pct}%"></div></div>
-        ${q.done ? '<button class="quest-claim-btn">Claim +' + q.reward + '</button>' : ''}
+        ${q.done ? `<button class="quest-claim-btn">${svgIcon('goo', { size: 13, className: 'buy-btn-icon' })}Claim +${q.reward}</button>` : ''}
       `;
       if (q.done) {
         item.querySelector('.quest-claim-btn').addEventListener('click', () => g.quests.claim(q.id));
@@ -412,10 +426,11 @@ export class UIManager {
     this._comboHideTimer = setTimeout(() => this.el.comboIndicator.classList.add('hidden'), 1400);
   }
 
-  notify(text, type = 'info') {
+  notify(text, type = 'info', icon) {
+    const iconKey = icon || { success: 'check', quest: 'scroll', lucky: 'sparkle', golden: 'sparkle', info: 'crystal' }[type] || 'sparkle';
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.textContent = text;
+    toast.innerHTML = `${svgIcon(iconKey, { size: 15, className: 'toast-icon' })}<span>${text}</span>`;
     this.el.toastStack.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
   }
@@ -425,14 +440,18 @@ export class UIManager {
   }
 
   celebrate() {
-    // brief confetti-style burst using floating emoji particles in DOM
+    // brief confetti-style burst of small SVG icon particles
+    const iconKeys = ['sparkle', 'goo', 'crystal', 'check'];
+    const colors = ['#ffd54a', '#4ade80', '#7dd3fc', '#ff9ecb'];
     for (let i = 0; i < 16; i++) {
+      const idx = i % 4;
       const el = document.createElement('div');
-      el.textContent = ['🎉', '✨', '💚', '⭐'][i % 4];
+      el.className = 'confetti-icon';
+      el.innerHTML = svgIcon(iconKeys[idx], { size: 18 + Math.random() * 14 });
+      el.style.color = colors[idx];
       el.style.position = 'absolute';
       el.style.left = 50 + (Math.random() - 0.5) * 40 + '%';
       el.style.top = '40%';
-      el.style.fontSize = 20 + Math.random() * 14 + 'px';
       el.style.pointerEvents = 'none';
       el.style.transition = 'transform 1.2s ease, opacity 1.2s ease';
       this.el.floatingLayer.appendChild(el);
@@ -445,8 +464,7 @@ export class UIManager {
   }
 
   playRebirthCinematic(crystalGain) {
-    this.el.rebirthText.textContent = `🌀 METAMORPHOSIS! 🌀\n+${crystalGain} Crystals`;
-    this.el.rebirthText.style.whiteSpace = 'pre-line';
+    this.el.rebirthTextLine.textContent = `METAMORPHOSIS — +${crystalGain} Crystals`;
     this.el.rebirthCinematic.classList.remove('hidden');
     setTimeout(() => this.el.rebirthCinematic.classList.add('hidden'), 1800);
   }

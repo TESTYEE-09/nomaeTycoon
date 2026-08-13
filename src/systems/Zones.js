@@ -36,7 +36,7 @@ export class ZoneSystem {
     this.game.world.unlockZoneVisual(zoneId);
     this.game.audio.unlockZone();
     this.game.camera.shake(0.3, 0.5);
-    this.game.ui.notify(`🎉 ${zone.name} unlocked!`, 'success');
+    this.game.ui.notify(`${zone.name} unlocked!`, 'success', 'map');
     this.game.ui.celebrate();
     this.game.particles.burst(this.game.world.getZoneAnchor(zoneId).clone().add(new THREE.Vector3(0, 2, 0)), {
       count: 40,

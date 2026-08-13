@@ -14,28 +14,32 @@
         <!-- ===== Top bar: currencies ===== -->
         <div class="topbar">
           <div class="currency-pill currency-goo" id="goo-pill">
-            <span class="currency-icon">🟢</span>
+            <span class="currency-icon" data-icon="goo"></span>
             <div class="currency-text">
               <span class="currency-value" id="goo-value">0</span>
               <span class="currency-rate" id="goo-rate">+0/s</span>
             </div>
           </div>
           <div class="currency-pill currency-crystal" id="crystal-pill">
-            <span class="currency-icon">💎</span>
+            <span class="currency-icon" data-icon="crystal"></span>
             <div class="currency-text">
               <span class="currency-value" id="crystal-value">0</span>
               <span class="currency-rate">Crystals</span>
             </div>
           </div>
           <div class="zone-indicator" id="zone-indicator">
+            <span data-icon="map" data-icon-size="15" class="zone-indicator-icon"></span>
             <span id="zone-name">Puddle Park</span>
           </div>
-          <button class="icon-btn" id="settings-btn" title="Settings">⚙️</button>
+          <button class="icon-btn" id="settings-btn" title="Settings">
+            <span data-icon="settings" data-icon-size="18"></span>
+          </button>
         </div>
 
         <!-- ===== Golden rush banner ===== -->
         <div class="golden-banner hidden" id="golden-banner">
-          <span>🌟 GOLDEN RUSH — 2x GOO!</span>
+          <span data-icon="sparkle" data-icon-size="16"></span>
+          <span>GOLDEN RUSH — 2x GOO</span>
           <div class="golden-bar"><div class="golden-bar-fill" id="golden-bar-fill"></div></div>
         </div>
 
@@ -46,7 +50,7 @@
 
         <!-- ===== Quest panel ===== -->
         <div class="quest-panel" id="quest-panel">
-          <div class="quest-panel-header">📜 Quests</div>
+          <div class="quest-panel-header"><span data-icon="scroll" data-icon-size="16"></span>Quests</div>
           <div class="quest-list" id="quest-list"></div>
         </div>
 
@@ -58,13 +62,13 @@
         <!-- ===== Bottom bar: menu tabs + tap button ===== -->
         <div class="bottombar">
           <div class="menu-tabs">
-            <button class="tab-btn active" data-tab="character">🧍 You</button>
-            <button class="tab-btn" data-tab="tycoon">🏭 Tycoon</button>
-            <button class="tab-btn" data-tab="zones">🗺️ Zones</button>
-            <button class="tab-btn" data-tab="prestige">👑 Rebirth</button>
+            <button class="tab-btn active" data-tab="character"><span data-icon="user" data-icon-size="16"></span>You</button>
+            <button class="tab-btn" data-tab="tycoon"><span data-icon="factory" data-icon-size="16"></span>Tycoon</button>
+            <button class="tab-btn" data-tab="zones"><span data-icon="map" data-icon-size="16"></span>Zones</button>
+            <button class="tab-btn" data-tab="prestige"><span data-icon="crown" data-icon-size="16"></span>Rebirth</button>
           </div>
           <button class="tap-btn" id="tap-btn">
-            <span class="tap-btn-icon">💥</span>
+            <span class="tap-btn-icon" data-icon="bolt" data-icon-size="28"></span>
             <span class="tap-btn-label">TAP</span>
           </button>
         </div>
@@ -72,24 +76,27 @@
         <!-- ===== Panels ===== -->
         <div class="panel-dock" id="panel-dock">
           <div class="panel" data-panel="character">
-            <div class="panel-title">Character Upgrades</div>
+            <div class="panel-title"><span data-icon="user" data-icon-size="18"></span>Character Upgrades</div>
             <div class="upgrade-grid" id="character-upgrades"></div>
           </div>
           <div class="panel" data-panel="tycoon">
-            <div class="panel-title">Tycoon</div>
+            <div class="panel-title"><span data-icon="factory" data-icon-size="18"></span>Tycoon</div>
             <div class="panel-subtitle">Machines</div>
             <div class="upgrade-grid" id="machine-list"></div>
             <div class="panel-subtitle">Tycoon Upgrades</div>
             <div class="upgrade-grid" id="tycoon-upgrades"></div>
           </div>
           <div class="panel" data-panel="zones">
-            <div class="panel-title">Zones</div>
+            <div class="panel-title"><span data-icon="map" data-icon-size="18"></span>Zones</div>
             <div class="upgrade-grid" id="zone-list"></div>
           </div>
           <div class="panel" data-panel="prestige">
-            <div class="panel-title">Rebirth</div>
+            <div class="panel-title"><span data-icon="crown" data-icon-size="18"></span>Rebirth</div>
             <div id="prestige-info"></div>
-            <button class="rebirth-btn" id="rebirth-btn">✨ Rebirth Now ✨</button>
+            <button class="rebirth-btn" id="rebirth-btn">
+              <span data-icon="cycle" data-icon-size="18"></span>
+              <span id="rebirth-btn-label">Rebirth Now</span>
+            </button>
             <div class="panel-subtitle">Permanent Upgrades</div>
             <div class="upgrade-grid" id="prestige-upgrades"></div>
           </div>
@@ -109,13 +116,16 @@
         <!-- ===== Rebirth cinematic ===== -->
         <div class="rebirth-cinematic hidden" id="rebirth-cinematic">
           <div class="rebirth-flash"></div>
-          <div class="rebirth-text" id="rebirth-text"></div>
+          <div class="rebirth-text" id="rebirth-text">
+            <span class="rebirth-text-icon" data-icon="cycle" data-icon-size="46"></span>
+            <div id="rebirth-text-line"></div>
+          </div>
         </div>
 
         <!-- ===== Settings modal ===== -->
         <div class="modal-overlay hidden" id="settings-modal">
           <div class="modal-card">
-            <div class="modal-title">Settings</div>
+            <div class="modal-title"><span data-icon="settings" data-icon-size="18"></span>Settings</div>
             <label class="setting-row">Music Volume
               <input type="range" id="music-vol" min="0" max="1" step="0.05" />
             </label>

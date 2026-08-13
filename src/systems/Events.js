@@ -57,7 +57,7 @@ export class EventSystem {
 
     this.luckyMesh = mesh;
     this.luckyLight = light;
-    this.game.ui.notify('✨ A Lucky Drop appeared!', 'lucky');
+    this.game.ui.notify('A Lucky Drop appeared!', 'lucky', 'sparkle');
   }
 
   _despawnLucky() {
@@ -90,7 +90,7 @@ export class EventSystem {
     this.game.economy.goldenActive = true;
     this.game.economy.goldenTimer = EVENTS.goldenWindowDuration;
     this.game.audio.jackpot();
-    this.game.ui.notify('🌟 GOLDEN RUSH! 2x Goo for 15s!', 'golden');
+    this.game.ui.notify('GOLDEN RUSH! 2x Goo for 15s', 'golden', 'sparkle');
     this.game.ui.setGoldenActive(true, EVENTS.goldenWindowDuration);
   }
 
