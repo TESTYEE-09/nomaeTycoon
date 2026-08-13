@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Ooze Rush</title>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="game-canvas"></canvas>
+
+      <div id="ui-root">
+        <!-- ===== Top bar: currencies ===== -->
+        <div class="topbar">
+          <div class="currency-pill currency-goo" id="goo-pill">
+            <span class="currency-icon">🟢</span>
+            <div class="currency-text">
+              <span class="currency-value" id="goo-value">0</span>
+              <span class="currency-rate" id="goo-rate">+0/s</span>
+            </div>
+          </div>
+          <div class="currency-pill currency-crystal" id="crystal-pill">
+            <span class="currency-icon">💎</span>
+            <div class="currency-text">
+              <span class="currency-value" id="crystal-value">0</span>
+              <span class="currency-rate">Crystals</span>
+            </div>
+          </div>
+          <div class="zone-indicator" id="zone-indicator">
+            <span id="zone-name">Puddle Park</span>
+          </div>
+          <button class="icon-btn" id="settings-btn" title="Settings">⚙️</button>
+        </div>
+
+        <!-- ===== Golden rush banner ===== -->
+        <div class="golden-banner hidden" id="golden-banner">
+          <span>🌟 GOLDEN RUSH — 2x GOO!</span>
+          <div class="golden-bar"><div class="golden-bar-fill" id="golden-bar-fill"></div></div>
+        </div>
+
+        <!-- ===== Combo indicator ===== -->
+        <div class="combo-indicator hidden" id="combo-indicator">
+          <span id="combo-text">COMBO x1</span>
+        </div>
+
+        <!-- ===== Quest panel ===== -->
+        <div class="quest-panel" id="quest-panel">
+          <div class="quest-panel-header">📜 Quests</div>
+          <div class="quest-list" id="quest-list"></div>
+        </div>
+
+        <!-- ===== Pad prompt ===== -->
+        <div class="pad-prompt hidden" id="pad-prompt">
+          <span id="pad-prompt-text">Press <kbd>E</kbd> to buy</span>
+        </div>
+
+        <!-- ===== Bottom bar: menu tabs + tap button ===== -->
+        <div class="bottombar">
+          <div class="menu-tabs">
+            <button class="tab-btn active" data-tab="character">🧍 You</button>
+            <button class="tab-btn" data-tab="tycoon">🏭 Tycoon</button>
+            <button class="tab-btn" data-tab="zones">🗺️ Zones</button>
+            <button class="tab-btn" data-tab="prestige">👑 Rebirth</button>
+          </div>
+          <button class="tap-btn" id="tap-btn">
+            <span class="tap-btn-icon">💥</span>
+            <span class="tap-btn-label">TAP</span>
+          </button>
+        </div>
+
+        <!-- ===== Panels ===== -->
+        <div class="panel-dock" id="panel-dock">
+          <div class="panel" data-panel="character">
+            <div class="panel-title">Character Upgrades</div>
+            <div class="upgrade-grid" id="character-upgrades"></div>
+          </div>
+          <div class="panel" data-panel="tycoon">
+            <div class="panel-title">Tycoon</div>
+            <div class="panel-subtitle">Machines</div>
+            <div class="upgrade-grid" id="machine-list"></div>
+            <div class="panel-subtitle">Tycoon Upgrades</div>
+            <div class="upgrade-grid" id="tycoon-upgrades"></div>
+          </div>
+          <div class="panel" data-panel="zones">
+            <div class="panel-title">Zones</div>
+            <div class="upgrade-grid" id="zone-list"></div>
+          </div>
+          <div class="panel" data-panel="prestige">
+            <div class="panel-title">Rebirth</div>
+            <div id="prestige-info"></div>
+            <button class="rebirth-btn" id="rebirth-btn">✨ Rebirth Now ✨</button>
+            <div class="panel-subtitle">Permanent Upgrades</div>
+            <div class="upgrade-grid" id="prestige-upgrades"></div>
+          </div>
+        </div>
+
+        <!-- ===== Notifications ===== -->
+        <div class="toast-stack" id="toast-stack"></div>
+
+        <!-- ===== Floating text layer ===== -->
+        <div class="floating-text-layer" id="floating-text-layer"></div>
+
+        <!-- ===== Tutorial ===== -->
+        <div class="tutorial-box hidden" id="tutorial-box">
+          <div id="tutorial-text"></div>
+        </div>
+
+        <!-- ===== Rebirth cinematic ===== -->
+        <div class="rebirth-cinematic hidden" id="rebirth-cinematic">
+          <div class="rebirth-flash"></div>
+          <div class="rebirth-text" id="rebirth-text"></div>
+        </div>
+
+        <!-- ===== Settings modal ===== -->
+        <div class="modal-overlay hidden" id="settings-modal">
+          <div class="modal-card">
+            <div class="modal-title">Settings</div>
+            <label class="setting-row">Music Volume
+              <input type="range" id="music-vol" min="0" max="1" step="0.05" />
+            </label>
+            <label class="setting-row">SFX Volume
+              <input type="range" id="sfx-vol" min="0" max="1" step="0.05" />
+            </label>
+            <label class="setting-row">Shadows
+              <input type="checkbox" id="shadow-toggle" />
+            </label>
+            <label class="setting-row">Camera Shake
+              <input type="checkbox" id="shake-toggle" />
+            </label>
+            <button class="danger-btn" id="reset-save-btn">Reset Save</button>
+            <button class="close-btn" id="close-settings-btn">Close</button>
+          </div>
+        </div>
+
+        <!-- ===== Start / unlock overlay ===== -->
+        <div class="click-hint" id="click-hint">Click &amp; drag to look around</div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
