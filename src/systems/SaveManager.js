@@ -16,7 +16,16 @@ const DEFAULT_SAVE = () => ({
   clickCount: 0,
   totalPurchases: 0,
   luckyCollected: 0,
-  settings: { musicVol: 0.6, sfxVol: 0.8, shadows: true, camShake: true, lookSens: 1, invertY: false },
+  playerName: 'Slime' + Math.floor(1000 + Math.random() * 9000),
+  settings: {
+    musicVol: 0.6,
+    sfxVol: 0.8,
+    shadows: true,
+    camShake: true,
+    lookSens: 1,
+    invertY: false,
+    multiplayer: true,
+  },
   lastSeen: Date.now(),
   tutorialStep: 0,
 });

@@ -8,6 +8,7 @@ import { ZoneSystem } from '../systems/Zones.js';
 import { QuestSystem } from '../systems/Quests.js';
 import { PrestigeSystem } from '../systems/Prestige.js';
 import { EventSystem } from '../systems/Events.js';
+import { Multiplayer } from '../systems/Multiplayer.js';
 import { World } from '../world/World.js';
 import { Player } from './Player.js';
 import { Input } from './Input.js';
@@ -64,6 +65,7 @@ export class Game {
     this._pointerNDC = new THREE.Vector2();
 
     this.ui = new UIManager(this);
+    this.multiplayer = new Multiplayer(this);
     this.setShadowsEnabled(this.save.data.settings.shadows);
 
     this._applyMoveSpeed();
@@ -116,6 +118,7 @@ export class Game {
 
   performTap(worldPoint) {
     const value = this.economy.registerClick();
+    this.multiplayer.sendTap();
     this.world.popGooBlob();
     this.player.tapPulse();
     this.audio.clickCombo(this.economy.comboStacks);
@@ -169,6 +172,7 @@ export class Game {
     this.tycoon.update(dt, this.elapsed);
     this.zones.update();
     this.events.update(dt, this.elapsed);
+    this.multiplayer.update(dt);
     this.particles.update(dt);
 
     if (this._fogTransition) {

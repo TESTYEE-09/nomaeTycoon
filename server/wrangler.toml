@@ -1,0 +1,11 @@
+name = "ooze-rush-mp"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "OozeRoom"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["OozeRoom"]

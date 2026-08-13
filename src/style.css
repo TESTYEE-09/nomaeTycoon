@@ -106,6 +106,17 @@ html, body, #app {
 .stat-crystal .stat-value { color: var(--crystal); }
 .stat-rate { font-size: 11px; opacity: 0.5; font-weight: 700; }
 .stat-zone { color: #ddd6ff; font-size: 12px; }
+.stat-online { color: #cfe9ff; font-size: 12px; }
+.online-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--goo);
+  box-shadow: 0 0 8px var(--goo);
+  animation: onlinePulse 2s ease-in-out infinite;
+}
+@keyframes onlinePulse { 50% { opacity: 0.35; } }
+.stat-online.offline .online-dot { background: #888; box-shadow: none; animation: none; }
 
 /* ---------------- corner buttons ---------------- */
 .corner-btns {
@@ -598,6 +609,18 @@ kbd {
 .modal-title { display: flex; align-items: center; gap: 8px; font-size: 17px; color: var(--gold); margin-bottom: 12px; }
 .setting-row { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; margin-bottom: 10px; gap: 10px; }
 .setting-row input[type="range"] { width: 130px; accent-color: var(--violet); }
+.setting-row input[type="text"] {
+  width: 150px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: #fff;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 6px 9px;
+}
+.setting-note { font-size: 11px; opacity: 0.5; margin: -4px 0 12px; font-weight: 600; }
 .setting-row input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--violet); }
 .danger-btn, .close-btn {
   width: 100%;

@@ -38,6 +38,38 @@ The canvas is the interface. Chrome lives in the corners as slim glass
 pills, every panel is closed by default and toggles shut when you press
 its tab again, and the sheet never exceeds ~38% of the screen height.
 
+## Multiplayer
+
+Other players show up as named slimes that walk, bounce, and flash a ring
+when they tap. Presence only — every player's economy stays in their own
+`localStorage`, so a dropped connection costs nothing and there is no way
+for someone else's client to touch your Goo.
+
+Play locally with two browser tabs:
+
+```bash
+npm run server   # ws://localhost:8787
+npm run dev      # the client auto-connects in dev
+```
+
+For the deployed game you need a relay somewhere. The `server/` folder has
+both hosts, speaking one shared protocol (`server/room.js`,
+documented in `server/protocol.md`):
+
+- **Cloudflare Worker + Durable Object** (free tier, one object per room):
+  ```bash
+  cd server && npx wrangler login && npx wrangler deploy
+  ```
+  Then set a GitHub Actions repo variable `MP_URL` to
+  `wss://ooze-rush-mp.<your-subdomain>.workers.dev` and re-run the Pages
+  workflow — `.github/workflows/deploy.yml` passes it in as `VITE_MP_URL`.
+- **Any Node host** (Fly, Render, a VPS): `node server/index.js`, then point
+  `MP_URL` at its `wss://` address.
+
+With no `MP_URL` configured the deployed game simply runs solo: the online
+chip hides and Settings says so. Rooms come from `?room=` on the socket URL
+(`VITE_MP_ROOM`, default `main`) and cap at 24 players.
+
 ## Structure
 
 - `src/config/balance.js` — every tunable economy number (costs, growth
@@ -48,8 +80,13 @@ its tab again, and the sheet never exceeds ~38% of the screen height.
   `Prestige.js`, `Events.js` (lucky drops/golden rush), `Audio.js`
   (synthesized SFX), `Particles.js` (pooled bursts + floating text),
   `SaveManager.js` (localStorage autosave).
-- `src/world/World.js` — procedurally builds terrain, zone gates,
-  tycoon pads, the Goo Blob, and the vault.
+- `src/world/World.js` — procedurally builds the floating zone islands,
+  gradient sky dome, stars, clouds, drifting motes, the goo lake, lantern
+  bridges, zone gates, tycoon pads, the Goo Blob, and the vault.
+- `src/world/RemotePlayer.js` — other players' slimes with canvas name tags.
+- `src/systems/Multiplayer.js` — presence client (auto-reconnect, solo fallback).
+- `server/` — the relay: shared `room.js`, a Node host, and a Cloudflare
+  Worker + Durable Object host.
 - `src/ui/UIManager.js` — all HTML/CSS overlay panels, toasts, tutorial,
   animated counters.
 

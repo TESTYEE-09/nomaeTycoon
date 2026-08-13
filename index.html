@@ -22,6 +22,10 @@
             <span class="stat-icon" data-icon="crystal" data-icon-size="14"></span>
             <span class="stat-value" id="crystal-value">0</span>
           </div>
+          <div class="stat stat-online hidden" id="online-pill" title="Slimes online">
+            <span class="online-dot"></span>
+            <span id="online-count">1</span>
+          </div>
           <div class="stat stat-zone" id="zone-indicator">
             <span class="stat-icon" data-icon="map" data-icon-size="14"></span>
             <span id="zone-name">Puddle Park</span>
@@ -139,6 +143,9 @@
             <label class="setting-row">SFX<input type="range" id="sfx-vol" min="0" max="1" step="0.05" /></label>
             <label class="setting-row">Look sensitivity<input type="range" id="sens-slider" min="0.3" max="2" step="0.05" /></label>
             <label class="setting-row">Invert look Y<input type="checkbox" id="invert-toggle" /></label>
+            <label class="setting-row">Slime name<input type="text" id="name-input" maxlength="16" /></label>
+            <label class="setting-row">Multiplayer<input type="checkbox" id="mp-toggle" /></label>
+            <div class="setting-note" id="mp-status">Solo</div>
             <label class="setting-row">Shadows<input type="checkbox" id="shadow-toggle" /></label>
             <label class="setting-row">Camera shake<input type="checkbox" id="shake-toggle" /></label>
             <button class="danger-btn" id="reset-save-btn">Reset Save</button>

@@ -25,6 +25,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+        env:
+          # Set repo variable MP_URL (Settings > Secrets and variables > Actions
+          # > Variables) to your relay, e.g. wss://ooze-rush-mp.<sub>.workers.dev
+          # Unset means the deployed game runs solo.
+          VITE_MP_URL: ${{ vars.MP_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

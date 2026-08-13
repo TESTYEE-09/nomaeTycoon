@@ -2,6 +2,7 @@ import { CHAR_UPGRADES, TYCOON_UPGRADES, MACHINES, ZONES, PRESTIGE } from '../co
 import { formatNumber, formatRate } from '../utils/format.js';
 import { FloatingTextManager } from '../systems/Particles.js';
 import { svgIcon } from './icons.js';
+import { MP_URL } from '../config/net.js';
 
 const TUTORIAL_STEPS = [
   { cond: () => true, text: 'Tap the goo blob — or press Space — to earn Goo.' },
@@ -46,6 +47,11 @@ export class UIManager {
       questClose: $('quest-close'),
       tutorialClose: $('tutorial-close'),
       sensSlider: $('sens-slider'),
+      nameInput: $('name-input'),
+      mpToggle: $('mp-toggle'),
+      mpStatus: $('mp-status'),
+      onlinePill: $('online-pill'),
+      onlineCount: $('online-count'),
       invertToggle: $('invert-toggle'),
       uiRoot: $('ui-root'),
       goldenBanner: $('golden-banner'),
@@ -119,6 +125,16 @@ export class UIManager {
       g.save.data.settings.invertY = e.target.checked;
       g.input.invertY = e.target.checked;
     });
+    this.el.nameInput.addEventListener('change', (e) => {
+      const name = e.target.value.trim().slice(0, 16) || 'Slime';
+      e.target.value = name;
+      g.save.data.playerName = name;
+      g.multiplayer?.sendName(name);
+    });
+    this.el.mpToggle.addEventListener('change', (e) => {
+      g.multiplayer?.setEnabled(e.target.checked);
+      this._updateMpStatus();
+    });
     this.el.rebirthBtn.addEventListener('click', () => g.prestige.doRebirth());
 
     this.el.helpBtn.addEventListener('click', () => this.el.helpModal.classList.toggle('hidden'));
@@ -184,7 +200,21 @@ export class UIManager {
     this.el.shakeToggle.checked = s.camShake;
     this.el.sensSlider.value = s.lookSens ?? 1;
     this.el.invertToggle.checked = !!s.invertY;
+    this.el.nameInput.value = this.game.save.data.playerName || 'Slime';
+    this.el.mpToggle.checked = s.multiplayer !== false;
+    this._updateMpStatus();
     this.el.settingsModal.classList.remove('hidden');
+  }
+
+  _updateMpStatus() {
+    const mp = this.game.multiplayer;
+    const text = {
+      online: () => `Connected — ${mp.count} slime${mp.count === 1 ? '' : 's'} in the world`,
+      connecting: () => 'Connecting…',
+      error: () => 'Server unreachable — playing solo, retrying',
+      off: () => (MP_URL ? 'Multiplayer off' : 'No relay configured — solo only'),
+    };
+    this.el.mpStatus.textContent = mp ? text[mp.status]() : 'Solo';
   }
 
   _renderActiveTab() {
@@ -561,6 +591,14 @@ export class UIManager {
     this.el.zoneName.textContent = ZONES.find((z) => z.id === g.zones.currentZoneId)?.name || '';
 
     this.showCombo(g.economy.comboStacks);
+
+    // online count chip
+    const mp = g.multiplayer;
+    const online = mp && mp.status === 'online';
+    this.el.onlinePill.classList.toggle('hidden', !mp || mp.status === 'off');
+    this.el.onlinePill.classList.toggle('offline', !online);
+    this.el.onlineCount.textContent = online ? mp.count : '—';
+    if (!this.el.settingsModal.classList.contains('hidden')) this._updateMpStatus();
 
     this.floatingText.update(dt, window.innerWidth, window.innerHeight);
 
