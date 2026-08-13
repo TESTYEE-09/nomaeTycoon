@@ -43,7 +43,12 @@ export class Game {
     const startAnchor = this.world.getZoneAnchor(this.save.data.currentZone || 'puddle');
     this.player.position.set(startAnchor.x, 0, 4);
 
-    this.input = new Input(canvas);
+    this.input = new Input(canvas, {
+      onTap: (x, y) => this._handleWorldClick(x, y),
+      joystickEl: document.getElementById('joystick'),
+    });
+    this.input.lookSensitivity = this.save.data.settings.lookSens ?? 1;
+    this.input.invertY = !!this.save.data.settings.invertY;
     this.camera = new CameraController(this.rendererCamera, this.input, this.player.group);
     this.camera.enableShake = this.save.data.settings.camShake;
 
@@ -62,7 +67,6 @@ export class Game {
     this.setShadowsEnabled(this.save.data.settings.shadows);
 
     this._applyMoveSpeed();
-    this._wireCanvasClicks();
     this._handleOfflineEarnings();
 
     window.addEventListener('resize', () => this._onResize());
@@ -86,19 +90,6 @@ export class Game {
     this.rendererCamera.aspect = window.innerWidth / window.innerHeight;
     this.rendererCamera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-  }
-
-  _wireCanvasClicks() {
-    this.canvas.addEventListener('pointerdown', (e) => {
-      this._pointerDownPos = { x: e.clientX, y: e.clientY, t: performance.now() };
-    });
-    this.canvas.addEventListener('pointerup', (e) => {
-      if (!this._pointerDownPos) return;
-      const dx = e.clientX - this._pointerDownPos.x;
-      const dy = e.clientY - this._pointerDownPos.y;
-      const dt = performance.now() - this._pointerDownPos.t;
-      if (Math.hypot(dx, dy) < 6 && dt < 350) this._handleWorldClick(e.clientX, e.clientY);
-    });
   }
 
   _handleWorldClick(x, y) {
@@ -147,6 +138,7 @@ export class Game {
     this.player.position.set(anchor.x, 0, 4);
     this.particles.burst(this.player.position.clone().add(new THREE.Vector3(0, 1, 0)), { count: 20, color: 0x8f6bff, speed: 5, life: 0.7 });
     this.camera.punchZoom(0.5);
+    this.camera.snap();
   }
 
   _handleOfflineEarnings() {

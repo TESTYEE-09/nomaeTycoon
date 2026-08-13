@@ -99,20 +99,22 @@ export class Player {
     const speed = this.moveSpeed * speedMult;
     const mx = moveInput.x;
     const mz = moveInput.z;
-    this.isMoving = mx !== 0 || mz !== 0;
+    const intent = Math.min(1, Math.hypot(mx, mz));
+    this.isMoving = intent > 0.05;
 
     if (this.isMoving) {
+      // camera-relative: forward = into the scene, right = 90deg clockwise of it
       const fx = cameraForward.x;
       const fz = cameraForward.z;
-      const rx = fz;
-      const rz = -fx;
-      const dirX = fx * -mz + rx * mx;
-      const dirZ = fz * -mz + rz * mx;
+      const rx = -fz;
+      const rz = fx;
+      const dirX = fx * mz + rx * mx;
+      const dirZ = fz * mz + rz * mx;
       const len = Math.hypot(dirX, dirZ) || 1;
       const nx = dirX / len;
       const nz = dirZ / len;
-      this.group.position.x += nx * speed * dt;
-      this.group.position.z += nz * speed * dt;
+      this.group.position.x += nx * speed * intent * dt;
+      this.group.position.z += nz * speed * intent * dt;
       const targetFacing = Math.atan2(nx, nz);
       let diff = targetFacing - this.facing;
       while (diff > Math.PI) diff -= Math.PI * 2;

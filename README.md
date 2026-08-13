@@ -11,9 +11,32 @@ npm install
 npm run dev
 ```
 
-Open the printed localhost URL. WASD (or arrow keys) to move, drag to
-orbit the camera, scroll to zoom. Click the glowing Goo Blob or the TAP
-button to earn Goo.
+Open the printed localhost URL.
+
+## Controls
+
+| Input | Action |
+| --- | --- |
+| `W` `A` `S` `D` / arrows | Move (camera-relative) |
+| Drag | Look around (a short click stays a click) |
+| Wheel / pinch | Zoom |
+| `Q` `R` | Rotate camera |
+| `Space` or click the blob | Tap for Goo |
+| `E` | Buy the machine on the pad you're standing on |
+| `1`–`4` | Toggle the Character / Tycoon / Zones / Rebirth panel |
+| `T` | Quests drawer |
+| `H` | Hide the interface |
+| `?` | Controls reference |
+| `Esc` | Close everything |
+
+On touch: drag the left half of the screen for the virtual joystick, the
+right half to look, pinch to zoom.
+
+## UI principles
+
+The canvas is the interface. Chrome lives in the corners as slim glass
+pills, every panel is closed by default and toggles shut when you press
+its tab again, and the sheet never exceeds ~38% of the screen height.
 
 ## Structure
 

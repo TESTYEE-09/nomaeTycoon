@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Ooze Rush</title>
   </head>
   <body>
@@ -11,90 +11,83 @@
       <canvas id="game-canvas"></canvas>
 
       <div id="ui-root">
-        <!-- ===== Top bar: currencies ===== -->
-        <div class="topbar">
-          <div class="currency-pill currency-goo" id="goo-pill">
-            <span class="currency-icon" data-icon="goo"></span>
-            <div class="currency-text">
-              <span class="currency-value" id="goo-value">0</span>
-              <span class="currency-rate" id="goo-rate">+0/s</span>
-            </div>
+        <!-- ===== HUD: one slim strip, top-left ===== -->
+        <div class="hud">
+          <div class="stat stat-goo" id="goo-pill">
+            <span class="stat-icon" data-icon="goo" data-icon-size="14"></span>
+            <span class="stat-value" id="goo-value">0</span>
+            <span class="stat-rate" id="goo-rate">+0/s</span>
           </div>
-          <div class="currency-pill currency-crystal" id="crystal-pill">
-            <span class="currency-icon" data-icon="crystal"></span>
-            <div class="currency-text">
-              <span class="currency-value" id="crystal-value">0</span>
-              <span class="currency-rate">Crystals</span>
-            </div>
+          <div class="stat stat-crystal" id="crystal-pill">
+            <span class="stat-icon" data-icon="crystal" data-icon-size="14"></span>
+            <span class="stat-value" id="crystal-value">0</span>
           </div>
-          <div class="zone-indicator" id="zone-indicator">
-            <span data-icon="map" data-icon-size="15" class="zone-indicator-icon"></span>
+          <div class="stat stat-zone" id="zone-indicator">
+            <span class="stat-icon" data-icon="map" data-icon-size="14"></span>
             <span id="zone-name">Puddle Park</span>
           </div>
+        </div>
+
+        <!-- ===== Corner controls, top-right ===== -->
+        <div class="corner-btns">
+          <button class="icon-btn" id="quests-btn" title="Quests (T)">
+            <span data-icon="scroll" data-icon-size="16"></span>
+            <span class="badge hidden" id="quest-badge">0</span>
+          </button>
+          <button class="icon-btn" id="help-btn" title="Controls (?)">
+            <span class="help-glyph">?</span>
+          </button>
           <button class="icon-btn" id="settings-btn" title="Settings">
-            <span data-icon="settings" data-icon-size="18"></span>
+            <span data-icon="settings" data-icon-size="16"></span>
           </button>
         </div>
 
-        <!-- ===== Golden rush banner ===== -->
-        <div class="golden-banner hidden" id="golden-banner">
-          <span data-icon="sparkle" data-icon-size="16"></span>
-          <span>GOLDEN RUSH — 2x GOO</span>
-          <div class="golden-bar"><div class="golden-bar-fill" id="golden-bar-fill"></div></div>
+        <!-- ===== Status line (golden rush / combo), just under HUD ===== -->
+        <div class="status-line">
+          <div class="chip chip-golden hidden" id="golden-banner">
+            <span data-icon="sparkle" data-icon-size="12"></span>
+            <span>2x GOO</span>
+            <span class="chip-bar"><i id="golden-bar-fill"></i></span>
+          </div>
+          <div class="chip chip-combo hidden" id="combo-indicator"><span id="combo-text">x1</span></div>
         </div>
 
-        <!-- ===== Combo indicator ===== -->
-        <div class="combo-indicator hidden" id="combo-indicator">
-          <span id="combo-text">COMBO x1</span>
-        </div>
-
-        <!-- ===== Quest panel ===== -->
-        <div class="quest-panel" id="quest-panel">
-          <div class="quest-panel-header"><span data-icon="scroll" data-icon-size="16"></span>Quests</div>
+        <!-- ===== Quests drawer (collapsed by default) ===== -->
+        <div class="quest-drawer hidden" id="quest-panel">
+          <div class="drawer-head">
+            <span data-icon="scroll" data-icon-size="14"></span>Quests
+            <button class="drawer-close" id="quest-close">&times;</button>
+          </div>
           <div class="quest-list" id="quest-list"></div>
         </div>
 
-        <!-- ===== Pad prompt ===== -->
-        <div class="pad-prompt hidden" id="pad-prompt">
-          <span id="pad-prompt-text">Press <kbd>E</kbd> to buy</span>
+        <!-- ===== Interact prompt ===== -->
+        <div class="prompt hidden" id="pad-prompt">
+          <span id="pad-prompt-text"><kbd>E</kbd> buy</span>
         </div>
 
-        <!-- ===== Bottom bar: menu tabs + tap button ===== -->
-        <div class="bottombar">
-          <div class="menu-tabs">
-            <button class="tab-btn active" data-tab="character"><span data-icon="user" data-icon-size="16"></span>You</button>
-            <button class="tab-btn" data-tab="tycoon"><span data-icon="factory" data-icon-size="16"></span>Tycoon</button>
-            <button class="tab-btn" data-tab="zones"><span data-icon="map" data-icon-size="16"></span>Zones</button>
-            <button class="tab-btn" data-tab="prestige"><span data-icon="crown" data-icon-size="16"></span>Rebirth</button>
-          </div>
-          <button class="tap-btn" id="tap-btn">
-            <span class="tap-btn-icon" data-icon="bolt" data-icon-size="28"></span>
-            <span class="tap-btn-label">TAP</span>
-          </button>
-        </div>
-
-        <!-- ===== Panels ===== -->
-        <div class="panel-dock" id="panel-dock">
+        <!-- ===== Sliding panel sheet ===== -->
+        <div class="sheet" id="panel-dock">
           <div class="panel" data-panel="character">
-            <div class="panel-title"><span data-icon="user" data-icon-size="18"></span>Character Upgrades</div>
+            <div class="panel-title"><span data-icon="user" data-icon-size="15"></span>Character</div>
             <div class="upgrade-grid" id="character-upgrades"></div>
           </div>
           <div class="panel" data-panel="tycoon">
-            <div class="panel-title"><span data-icon="factory" data-icon-size="18"></span>Tycoon</div>
+            <div class="panel-title"><span data-icon="factory" data-icon-size="15"></span>Tycoon</div>
             <div class="panel-subtitle">Machines</div>
             <div class="upgrade-grid" id="machine-list"></div>
-            <div class="panel-subtitle">Tycoon Upgrades</div>
+            <div class="panel-subtitle">Upgrades</div>
             <div class="upgrade-grid" id="tycoon-upgrades"></div>
           </div>
           <div class="panel" data-panel="zones">
-            <div class="panel-title"><span data-icon="map" data-icon-size="18"></span>Zones</div>
+            <div class="panel-title"><span data-icon="map" data-icon-size="15"></span>Zones</div>
             <div class="upgrade-grid" id="zone-list"></div>
           </div>
           <div class="panel" data-panel="prestige">
-            <div class="panel-title"><span data-icon="crown" data-icon-size="18"></span>Rebirth</div>
+            <div class="panel-title"><span data-icon="crown" data-icon-size="15"></span>Rebirth</div>
             <div id="prestige-info"></div>
             <button class="rebirth-btn" id="rebirth-btn">
-              <span data-icon="cycle" data-icon-size="18"></span>
+              <span data-icon="cycle" data-icon-size="16"></span>
               <span id="rebirth-btn-label">Rebirth Now</span>
             </button>
             <div class="panel-subtitle">Permanent Upgrades</div>
@@ -102,22 +95,38 @@
           </div>
         </div>
 
-        <!-- ===== Notifications ===== -->
-        <div class="toast-stack" id="toast-stack"></div>
+        <!-- ===== Dock: tabs + tap button ===== -->
+        <div class="dock">
+          <div class="tabs">
+            <button class="tab-btn" data-tab="character" title="Character (1)"><span data-icon="user" data-icon-size="17"></span><i>You</i></button>
+            <button class="tab-btn" data-tab="tycoon" title="Tycoon (2)"><span data-icon="factory" data-icon-size="17"></span><i>Tycoon</i></button>
+            <button class="tab-btn" data-tab="zones" title="Zones (3)"><span data-icon="map" data-icon-size="17"></span><i>Zones</i></button>
+            <button class="tab-btn" data-tab="prestige" title="Rebirth (4)"><span data-icon="crown" data-icon-size="17"></span><i>Rebirth</i></button>
+          </div>
+        </div>
 
-        <!-- ===== Floating text layer ===== -->
+        <button class="tap-btn" id="tap-btn" title="Tap (Space)">
+          <span class="tap-btn-icon" data-icon="bolt" data-icon-size="22"></span>
+        </button>
+
+        <!-- ===== Virtual joystick (touch) ===== -->
+        <div class="joystick" id="joystick"><div class="joystick-knob"></div></div>
+
+        <!-- ===== Notifications / floating text ===== -->
+        <div class="toast-stack" id="toast-stack"></div>
         <div class="floating-text-layer" id="floating-text-layer"></div>
 
-        <!-- ===== Tutorial ===== -->
-        <div class="tutorial-box hidden" id="tutorial-box">
-          <div id="tutorial-text"></div>
+        <!-- ===== Coach line (tutorial) ===== -->
+        <div class="coach hidden" id="tutorial-box">
+          <span id="tutorial-text"></span>
+          <button class="coach-close" id="tutorial-close">&times;</button>
         </div>
 
         <!-- ===== Rebirth cinematic ===== -->
         <div class="rebirth-cinematic hidden" id="rebirth-cinematic">
           <div class="rebirth-flash"></div>
           <div class="rebirth-text" id="rebirth-text">
-            <span class="rebirth-text-icon" data-icon="cycle" data-icon-size="46"></span>
+            <span class="rebirth-text-icon" data-icon="cycle" data-icon-size="40"></span>
             <div id="rebirth-text-line"></div>
           </div>
         </div>
@@ -125,26 +134,38 @@
         <!-- ===== Settings modal ===== -->
         <div class="modal-overlay hidden" id="settings-modal">
           <div class="modal-card">
-            <div class="modal-title"><span data-icon="settings" data-icon-size="18"></span>Settings</div>
-            <label class="setting-row">Music Volume
-              <input type="range" id="music-vol" min="0" max="1" step="0.05" />
-            </label>
-            <label class="setting-row">SFX Volume
-              <input type="range" id="sfx-vol" min="0" max="1" step="0.05" />
-            </label>
-            <label class="setting-row">Shadows
-              <input type="checkbox" id="shadow-toggle" />
-            </label>
-            <label class="setting-row">Camera Shake
-              <input type="checkbox" id="shake-toggle" />
-            </label>
+            <div class="modal-title"><span data-icon="settings" data-icon-size="16"></span>Settings</div>
+            <label class="setting-row">Music<input type="range" id="music-vol" min="0" max="1" step="0.05" /></label>
+            <label class="setting-row">SFX<input type="range" id="sfx-vol" min="0" max="1" step="0.05" /></label>
+            <label class="setting-row">Look sensitivity<input type="range" id="sens-slider" min="0.3" max="2" step="0.05" /></label>
+            <label class="setting-row">Invert look Y<input type="checkbox" id="invert-toggle" /></label>
+            <label class="setting-row">Shadows<input type="checkbox" id="shadow-toggle" /></label>
+            <label class="setting-row">Camera shake<input type="checkbox" id="shake-toggle" /></label>
             <button class="danger-btn" id="reset-save-btn">Reset Save</button>
             <button class="close-btn" id="close-settings-btn">Close</button>
           </div>
         </div>
 
-        <!-- ===== Start / unlock overlay ===== -->
-        <div class="click-hint" id="click-hint">Click &amp; drag to look around</div>
+        <!-- ===== Controls modal ===== -->
+        <div class="modal-overlay hidden" id="help-modal">
+          <div class="modal-card">
+            <div class="modal-title">Controls</div>
+            <div class="keymap">
+              <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div><span>Move (camera-relative)</span>
+              <div><span class="kbd-wide">Drag</span></div><span>Look around</span>
+              <div><span class="kbd-wide">Wheel</span></div><span>Zoom</span>
+              <div><kbd>Q</kbd><kbd>R</kbd></div><span>Rotate camera</span>
+              <div><kbd>Space</kbd></div><span>Tap the goo blob</span>
+              <div><kbd>E</kbd></div><span>Buy machine at pad</span>
+              <div><kbd>1</kbd>–<kbd>4</kbd></div><span>Open / close menus</span>
+              <div><kbd>T</kbd></div><span>Quests</span>
+              <div><kbd>H</kbd></div><span>Hide the interface</span>
+              <div><kbd>Esc</kbd></div><span>Close everything</span>
+            </div>
+            <p class="keymap-note">On touch: drag the left half to move, the right half to look, pinch to zoom.</p>
+            <button class="close-btn" id="close-help-btn">Close</button>
+          </div>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/main.js"></script>

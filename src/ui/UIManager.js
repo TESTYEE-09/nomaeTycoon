@@ -4,11 +4,11 @@ import { FloatingTextManager } from '../systems/Particles.js';
 import { svgIcon } from './icons.js';
 
 const TUTORIAL_STEPS = [
-  { cond: () => true, text: 'Tap the glowing Goo Blob (or hit the TAP button) to earn Goo!' },
-  { cond: (g) => g.save.data.clickCount >= 3, text: 'Nice! Open the "You" menu below to spend Goo on upgrades.' },
-  { cond: (g) => (g.save.data.charUpgrades.clickPower || 0) >= 1, text: 'Now check the "Tycoon" tab — buy a Goo Extractor for passive income!' },
-  { cond: (g) => (g.save.data.machines?.extractor?.count || 0) >= 1, text: 'Your extractor works even while you explore. Walk around with WASD!' },
-  { cond: (g) => g.save.data.lifetimeGoo >= 800, text: 'Check "Zones" to unlock new areas as you earn more Goo.' },
+  { cond: () => true, text: 'Tap the goo blob — or press Space — to earn Goo.' },
+  { cond: (g) => g.save.data.clickCount >= 3, text: 'Press 1 for your upgrades. Drag to look, WASD to move.' },
+  { cond: (g) => (g.save.data.charUpgrades.clickPower || 0) >= 1, text: 'Press 2 and buy a Goo Extractor for passive income.' },
+  { cond: (g) => (g.save.data.machines?.extractor?.count || 0) >= 1, text: 'Walk onto a machine pad and press E to build there.' },
+  { cond: (g) => g.save.data.lifetimeGoo >= 800, text: 'Press 3 to unlock new zones. ? shows all controls.' },
 ];
 
 export class UIManager {
@@ -21,9 +21,9 @@ export class UIManager {
     this._wireEvents();
     this._buildStaticGrids();
     this.floatingText = new FloatingTextManager(game.camera.camera, this.el.floatingLayer);
-    this._tutorialHiddenAt = null;
+    this.activeTab = null; // panels start closed — the world is the interface
+    this.questsOpen = false;
     this.refreshAll();
-    this.setTab('character');
     this._updateTutorial();
   }
 
@@ -37,6 +37,17 @@ export class UIManager {
       crystalPill: $('crystal-pill'),
       zoneName: $('zone-name'),
       settingsBtn: $('settings-btn'),
+      helpBtn: $('help-btn'),
+      helpModal: $('help-modal'),
+      closeHelpBtn: $('close-help-btn'),
+      questsBtn: $('quests-btn'),
+      questBadge: $('quest-badge'),
+      questPanel: $('quest-panel'),
+      questClose: $('quest-close'),
+      tutorialClose: $('tutorial-close'),
+      sensSlider: $('sens-slider'),
+      invertToggle: $('invert-toggle'),
+      uiRoot: $('ui-root'),
       goldenBanner: $('golden-banner'),
       goldenBarFill: $('golden-bar-fill'),
       comboIndicator: $('combo-indicator'),
@@ -69,7 +80,6 @@ export class UIManager {
       shakeToggle: $('shake-toggle'),
       resetSaveBtn: $('reset-save-btn'),
       closeSettingsBtn: $('close-settings-btn'),
-      clickHint: $('click-hint'),
     };
   }
 
@@ -100,31 +110,70 @@ export class UIManager {
       g.save.data.settings.camShake = e.target.checked;
       g.camera.enableShake = e.target.checked;
     });
+    this.el.sensSlider.addEventListener('input', (e) => {
+      const v = parseFloat(e.target.value);
+      g.save.data.settings.lookSens = v;
+      g.input.lookSensitivity = v;
+    });
+    this.el.invertToggle.addEventListener('change', (e) => {
+      g.save.data.settings.invertY = e.target.checked;
+      g.input.invertY = e.target.checked;
+    });
     this.el.rebirthBtn.addEventListener('click', () => g.prestige.doRebirth());
+
+    this.el.helpBtn.addEventListener('click', () => this.el.helpModal.classList.toggle('hidden'));
+    this.el.closeHelpBtn.addEventListener('click', () => this.el.helpModal.classList.add('hidden'));
+    this.el.questsBtn.addEventListener('click', () => this.toggleQuests());
+    this.el.questClose.addEventListener('click', () => this.toggleQuests(false));
+    this.el.tutorialClose.addEventListener('click', () => {
+      g.save.data.tutorialStep = TUTORIAL_STEPS.length;
+      this.el.tutorialBox.classList.add('hidden');
+    });
 
     for (const btn of this.el.tabBtns) {
       btn.addEventListener('click', () => this.setTab(btn.dataset.tab));
     }
 
+    // Panels swallow their own clicks so a menu tap never also taps the world.
+    for (const panel of this.el.panels) panel.addEventListener('pointerdown', (e) => e.stopPropagation());
+
+    const TAB_KEYS = { Digit1: 'character', Digit2: 'tycoon', Digit3: 'zones', Digit4: 'prestige' };
     window.addEventListener('keydown', (e) => {
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA')) return;
       if (e.code === 'KeyE') g.tycoon.tryBuyNear();
+      else if (e.code === 'Space') g.performTap();
+      else if (TAB_KEYS[e.code]) this.setTab(TAB_KEYS[e.code]);
+      else if (e.code === 'KeyT') this.toggleQuests();
+      else if (e.code === 'KeyH') this.el.uiRoot.classList.toggle('ui-hidden');
+      else if (e.code === 'Slash' && e.shiftKey) this.el.helpModal.classList.toggle('hidden');
+      else if (e.code === 'Escape') this.closeAll();
     });
 
-    document.addEventListener(
-      'pointerdown',
-      () => {
-        g.audio.unlock();
-        if (this.el.clickHint) this.el.clickHint.style.opacity = '0';
-      },
-      { once: true }
-    );
+    document.addEventListener('pointerdown', () => g.audio.unlock(), { once: true });
   }
 
+  /** Tabs toggle: clicking the open tab closes the sheet and frees the screen. */
   setTab(tab) {
-    this.activeTab = tab;
-    for (const btn of this.el.tabBtns) btn.classList.toggle('active', btn.dataset.tab === tab);
-    for (const panel of this.el.panels) panel.classList.toggle('active', panel.dataset.panel === tab);
+    this.activeTab = this.activeTab === tab ? null : tab;
+    for (const btn of this.el.tabBtns) btn.classList.toggle('active', btn.dataset.tab === this.activeTab);
+    for (const panel of this.el.panels) panel.classList.toggle('active', panel.dataset.panel === this.activeTab);
+    if (this.activeTab) this._renderActiveTab();
     this.game.audio.uiClick();
+  }
+
+  toggleQuests(force) {
+    this.questsOpen = force === undefined ? !this.questsOpen : force;
+    this.el.questPanel.classList.toggle('hidden', !this.questsOpen);
+    this.el.questsBtn.classList.toggle('on', this.questsOpen);
+    if (this.questsOpen) this._renderQuests();
+  }
+
+  closeAll() {
+    this.setTab(this.activeTab);
+    this.toggleQuests(false);
+    this.el.settingsModal.classList.add('hidden');
+    this.el.helpModal.classList.add('hidden');
   }
 
   _openSettings() {
@@ -133,7 +182,16 @@ export class UIManager {
     this.el.sfxVol.value = s.sfxVol;
     this.el.shadowToggle.checked = s.shadows;
     this.el.shakeToggle.checked = s.camShake;
+    this.el.sensSlider.value = s.lookSens ?? 1;
+    this.el.invertToggle.checked = !!s.invertY;
     this.el.settingsModal.classList.remove('hidden');
+  }
+
+  _renderActiveTab() {
+    if (this.activeTab === 'character') this._renderCharUpgrades();
+    else if (this.activeTab === 'tycoon') this.refreshTycoon();
+    else if (this.activeTab === 'zones') this._renderZones();
+    else if (this.activeTab === 'prestige') this._renderPrestige();
   }
 
   _buildStaticGrids() {
@@ -334,6 +392,10 @@ export class UIManager {
 
   _renderQuests() {
     const g = this.game;
+    const claimable = g.quests.list.filter((q) => q.done).length;
+    this.el.questBadge.textContent = claimable;
+    this.el.questBadge.classList.toggle('hidden', claimable === 0);
+    if (!this.questsOpen) return;
     this.el.questList.innerHTML = '';
     for (const q of g.quests.list) {
       const item = document.createElement('div');
@@ -391,8 +453,8 @@ export class UIManager {
     const canBuy = g.tycoon.canBuy(pad.machine);
     const cost = g.tycoon.cost(pad.machine);
     this.el.padPromptText.innerHTML = canBuy
-      ? `Press <kbd>E</kbd> to buy ${pad.machine.name} — ${formatNumber(cost)} Goo`
-      : `${pad.machine.name} — need ${formatNumber(cost)} Goo`;
+      ? `<kbd>E</kbd> ${pad.machine.name} · ${formatNumber(cost)}`
+      : `${pad.machine.name} · need ${formatNumber(cost)}`;
     this.el.padPrompt.classList.remove('hidden');
   }
 
@@ -418,7 +480,7 @@ export class UIManager {
       return;
     }
     this.el.comboIndicator.classList.remove('hidden');
-    this.el.comboText.textContent = `COMBO x${stacks}`;
+    this.el.comboText.textContent = `x${stacks}`;
     this.el.comboIndicator.style.animation = 'none';
     void this.el.comboIndicator.offsetWidth;
     this.el.comboIndicator.style.animation = '';
@@ -509,14 +571,12 @@ export class UIManager {
       this._updateTutorial();
     }
 
-    // periodic refresh of buy-affordability without full rebuild cost: cheap full rerenders are fine at low freq
+    // Refresh affordability only for the panel that is actually open.
     this._refreshTimer = (this._refreshTimer || 0) + dt;
     if (this._refreshTimer > 0.5) {
       this._refreshTimer = 0;
-      if (this.activeTab === 'character') this._renderCharUpgrades();
-      if (this.activeTab === 'tycoon') this._renderTycoonUpgrades();
-      if (this.activeTab === 'zones') this._renderZones();
-      if (this.activeTab === 'prestige') this._renderPrestige();
+      if (this.activeTab) this._renderActiveTab();
+      this._renderQuests();
     }
   }
 }

@@ -16,7 +16,7 @@ const DEFAULT_SAVE = () => ({
   clickCount: 0,
   totalPurchases: 0,
   luckyCollected: 0,
-  settings: { musicVol: 0.6, sfxVol: 0.8, shadows: true, camShake: true },
+  settings: { musicVol: 0.6, sfxVol: 0.8, shadows: true, camShake: true, lookSens: 1, invertY: false },
   lastSeen: Date.now(),
   tutorialStep: 0,
 });
@@ -32,7 +32,9 @@ export class SaveManager {
       const raw = localStorage.getItem(SAVE_KEY);
       if (!raw) return DEFAULT_SAVE();
       const parsed = JSON.parse(raw);
-      return { ...DEFAULT_SAVE(), ...parsed };
+      const base = DEFAULT_SAVE();
+      // settings gain new keys over time, so merge them rather than replace
+      return { ...base, ...parsed, settings: { ...base.settings, ...(parsed.settings || {}) } };
     } catch (e) {
       console.warn('Save corrupted, starting fresh', e);
       return DEFAULT_SAVE();
